@@ -27,3 +27,4 @@ jupyter==1.0.0
 nbformat==5.10.4
 nbconvert==7.16.4
 ipykernel==6.29.5
+prometheus-fastapi-instrumentator==7.0.0

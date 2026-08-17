@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: heart-disease-api
+  labels:
+    app: heart-disease-api
+spec:
+  type: LoadBalancer   # on Minikube, reach it via `minikube service heart-disease-api`
+  selector:
+    app: heart-disease-api
+  ports:
+    - name: http
+      port: 80          # external port
+      targetPort: 8000  # container port
+      protocol: TCP

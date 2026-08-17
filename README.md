@@ -60,10 +60,10 @@ correlations. Figures are saved to `report/figures/`.
 | 1 | Scaffold + data download + preprocessing + EDA | ✅ done |
 | 2 | Feature engineering, model dev, MLflow tracking | ✅ done |
 | 3 | FastAPI `/predict` + Dockerfile | ✅ done |
-| 4 | Pytest + GitHub Actions CI/CD | ⏳ |
-| 5 | Kubernetes deployment (Minikube) | ⏳ |
-| 6 | Monitoring & logging (Prometheus + Grafana) | ⏳ |
-| 7 | 10-page report + pipeline video | ⏳ |
+| 4 | Pytest + GitHub Actions CI/CD | ✅ done |
+| 5 | Kubernetes deployment (Minikube) | ✅ done |
+| 6 | Monitoring & logging (Prometheus + Grafana) | ✅ done |
+| 7 | 10-page report + pipeline video | 📝 report drafted |
 
 ## Key EDA findings (Phase 1)
 

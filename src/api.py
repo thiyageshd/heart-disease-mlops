@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import json
 import logging
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Literal
 
@@ -102,17 +103,29 @@ class PredictionResponse(BaseModel):
 
 
 # ------------------------------------------------------------------ app
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    load_model()          # startup: load the pipeline once
+    yield
+    # (nothing to clean up on shutdown)
+
+
 app = FastAPI(
     title="Heart Disease Risk Prediction API",
     description="Predicts heart-disease risk from patient health data. "
                 "Serves the model trained in the MLOps pipeline.",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
-
-@app.on_event("startup")
-def _startup():
-    load_model()
+# ---- Prometheus metrics: exposes /metrics with request counts, latency, etc.
+# Optional import so the app still runs if the package isn't installed.
+try:
+    from prometheus_fastapi_instrumentator import Instrumentator
+    Instrumentator().instrument(app).expose(app, endpoint="/metrics")
+    logger.info("Prometheus instrumentation enabled at /metrics")
+except ImportError:  # pragma: no cover
+    logger.warning("prometheus-fastapi-instrumentator not installed; /metrics disabled")
 
 
 @app.get("/", include_in_schema=False)
