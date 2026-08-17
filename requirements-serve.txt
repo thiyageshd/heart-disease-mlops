@@ -1,0 +1,9 @@
+# Serving-only dependencies (keeps the container image slim).
+# Full dev/training deps live in requirements.txt.
+scikit-learn==1.5.1
+pandas==2.2.2
+numpy==1.26.4
+joblib==1.4.2
+fastapi==0.111.1
+uvicorn==0.30.3
+pydantic==2.8.2

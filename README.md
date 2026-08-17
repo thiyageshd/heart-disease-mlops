@@ -59,7 +59,7 @@ correlations. Figures are saved to `report/figures/`.
 |-------|------|--------|
 | 1 | Scaffold + data download + preprocessing + EDA | ✅ done |
 | 2 | Feature engineering, model dev, MLflow tracking | ✅ done |
-| 3 | FastAPI `/predict` + Dockerfile | ⏳ |
+| 3 | FastAPI `/predict` + Dockerfile | ✅ done |
 | 4 | Pytest + GitHub Actions CI/CD | ⏳ |
 | 5 | Kubernetes deployment (Minikube) | ⏳ |
 | 6 | Monitoring & logging (Prometheus + Grafana) | ⏳ |
@@ -85,3 +85,40 @@ Two classifiers, 5-fold stratified `GridSearchCV`, scored on ROC-AUC.
 
 Winner saved to `models/heart_pipeline.joblib`. Train with `python src/train.py`;
 inspect runs with `mlflow ui --backend-store-uri sqlite:///mlflow.db`.
+
+## Serving the model (Phase 3)
+
+Run the API locally:
+
+```bash
+uvicorn src.api:app --host 0.0.0.0 --port 8000
+# interactive docs: http://localhost:8000/docs
+```
+
+Endpoints:
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/health` | liveness + model metadata (used by K8s probes) |
+| POST | `/predict` | single-patient prediction |
+| POST | `/predict/batch` | multiple patients in one request |
+
+Example:
+
+```bash
+curl -X POST http://localhost:8000/predict \
+  -H "Content-Type: application/json" \
+  -d @sample_request.json
+# -> {"prediction":1,"label":"Heart disease","probability":0.62,"confidence":0.62}
+```
+
+Run in Docker:
+
+```bash
+docker build -t heart-disease-api .
+docker run -p 8000:8000 heart-disease-api
+# or use the helper: ./scripts_docker_test.sh
+```
+
+The container installs only serving dependencies (`requirements-serve.txt`), runs as
+a non-root user, and ships a `HEALTHCHECK` that hits `/health`.
