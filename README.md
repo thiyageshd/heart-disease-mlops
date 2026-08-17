@@ -67,12 +67,11 @@ correlations. Figures are saved to `report/figures/`.
 
 ## Key EDA findings (Phase 1)
 
-- Classes mildly imbalanced (~54% positive) → report precision/recall/ROC-AUC,
+- Classes near-balanced (~54% no-disease / 46% disease) → report precision/recall/ROC-AUC,
   prioritise **recall** for a screening use case.
 - Strongest target associations: `ca`, `exang`, `oldpeak`, `cp`, `thalach`.
-- Data-quality fixes: coerced invalid codes (`ca==4`, `thal==0`) to missing;
-  dropped 1 duplicate row. Imputation is learned inside the pipeline to avoid
-  train/serve skew.
+- Data source: authentic UCI `processed.cleveland.data` (dataset 45). 6 genuine
+  missing values (marked `?`) are imputed inside the pipeline to avoid train/serve skew.
 
 ## Model results (Phase 2)
 
@@ -80,8 +79,8 @@ Two classifiers, 5-fold stratified `GridSearchCV`, scored on ROC-AUC.
 
 | Model | Accuracy | Precision | Recall | F1 | ROC-AUC |
 |---|---|---|---|---|---|
-| **Logistic Regression** (winner) | 0.820 | 0.824 | 0.848 | 0.836 | **0.894** |
-| Random Forest | 0.770 | 0.744 | 0.879 | 0.806 | 0.893 |
+| **Logistic Regression** (winner) | 0.885 | 0.839 | 0.929 | 0.881 | **0.968** |
+| Random Forest | 0.885 | 0.839 | 0.929 | 0.881 | 0.950 |
 
 Winner saved to `models/heart_pipeline.joblib`. Train with `python src/train.py`;
 inspect runs with `mlflow ui --backend-store-uri sqlite:///mlflow.db`.

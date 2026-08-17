@@ -30,6 +30,9 @@ import requests
 
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 OUT_PATH = DATA_DIR / "heart_disease_raw.csv"
+# The authentic UCI 'processed.cleveland.data' shipped in the repo (from
+# https://archive.ics.uci.edu/dataset/45/heart+disease). Preferred source.
+LOCAL_UCI = DATA_DIR / "processed.cleveland.data"
 
 COLUMNS = [
     "age", "sex", "cp", "trestbps", "chol", "fbs", "restecg",
@@ -51,12 +54,22 @@ MIRROR_URL = (
 TIMEOUT = 30
 
 
+def _from_local() -> pd.DataFrame:
+    """Load the authentic UCI processed.cleveland.data bundled in data/.
+
+    Real UCI encoding: no header, '?' marks missing values, and the target
+    column 'num' is 0-4 (0 = no disease, 1-4 = disease severity).
+    """
+    df = pd.read_csv(LOCAL_UCI, header=None, names=COLUMNS, na_values="?")
+    df["target"] = (df["target"].astype(float) > 0).astype(int)
+    return df
+
+
 def _from_uci() -> pd.DataFrame:
-    """Load the raw UCI file (no header, '?' for missing) and normalise it."""
+    """Fetch the same file from the live UCI repository (network fallback)."""
     resp = requests.get(UCI_URL, timeout=TIMEOUT)
     resp.raise_for_status()
     df = pd.read_csv(io.StringIO(resp.text), header=None, names=COLUMNS, na_values="?")
-    # Binarise the 0-4 severity target to presence/absence.
     df["target"] = (df["target"].astype(float) > 0).astype(int)
     return df
 
@@ -72,17 +85,23 @@ def _from_mirror() -> pd.DataFrame:
 
 def download() -> pd.DataFrame:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-    try:
-        print(f"Attempting canonical UCI source:\n  {UCI_URL}")
-        df = _from_uci()
-        print("  -> success (UCI).")
-    except Exception as exc:  # noqa: BLE001 - we intentionally fall back
-        print(f"  -> UCI unreachable ({exc.__class__.__name__}). Falling back to mirror.")
-        df = _from_mirror()
-        print("  -> success (mirror).")
+    if LOCAL_UCI.exists():
+        print(f"Using authentic local UCI file:\n  {LOCAL_UCI}")
+        df = _from_local()
+        print("  -> success (local UCI).")
+    else:
+        try:
+            print(f"Local file not found. Fetching from UCI:\n  {UCI_URL}")
+            df = _from_uci()
+            print("  -> success (UCI).")
+        except Exception as exc:  # noqa: BLE001
+            print(f"  -> UCI unreachable ({exc.__class__.__name__}). Falling back to mirror.")
+            df = _from_mirror()
+            print("  -> success (mirror).")
 
     df.to_csv(OUT_PATH, index=False)
     print(f"\nWrote {df.shape[0]} rows x {df.shape[1]} cols to {OUT_PATH}")
+    print(f"Missing values retained for pipeline imputation: {int(df.isna().sum().sum())}")
     print(f"Target balance: {df['target'].value_counts().to_dict()}")
     return df
 

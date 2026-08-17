@@ -1,15 +1,15 @@
 {
   "winner": "logistic_regression",
   "metrics": {
-    "accuracy": 0.8197,
-    "precision": 0.8235,
-    "recall": 0.8485,
-    "f1": 0.8358,
-    "roc_auc": 0.8939
+    "accuracy": 0.8852,
+    "precision": 0.8387,
+    "recall": 0.9286,
+    "f1": 0.8814,
+    "roc_auc": 0.9675
   },
   "best_params": {
-    "C": 0.5,
-    "class_weight": "balanced"
+    "C": 1.0,
+    "class_weight": null
   },
   "feature_order": [
     "age",
@@ -27,10 +27,9 @@
     "exang"
   ],
   "clean_notes": [
-    "Dropped 1 duplicate row(s).",
-    "Coerced ca==4 -> NaN: 5",
-    "Coerced thal==0 -> NaN: 2"
+    "Coerced ca==4 -> NaN: 0",
+    "Coerced thal==0 -> NaN: 0"
   ],
-  "n_train": 241,
+  "n_train": 242,
   "n_test": 61
 }

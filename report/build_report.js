@@ -90,7 +90,7 @@ children.push(P("The emphasis is not only on model accuracy but on the engineeri
 children.push(H2("Problem statement"));
 children.push(P("Given 13 clinical features (age, sex, chest-pain type, resting blood pressure, cholesterol, and others), classify whether a patient has heart disease. The trained model is exposed as a JSON REST API and deployed to a Kubernetes cluster with request monitoring."));
 children.push(H2("Dataset"));
-children.push(P("Heart Disease UCI dataset (Cleveland processed subset): 303 records, 13 features, and a binary target (presence/absence of heart disease). After cleaning, 302 records remain; the classes are mildly imbalanced (~54% positive)."));
+children.push(P("Heart Disease UCI dataset (Cleveland processed subset), obtained directly from the UCI Machine Learning Repository (dataset 45): 303 records, 13 features, and a binary target (presence/absence of heart disease). The raw target is 0-4 (severity) and is binarised to 0/1. The classes are close to balanced (~54% negative / 46% positive), with 6 genuine missing values (marked '?') handled by pipeline imputation."));
 
 // 2. Architecture
 children.push(H1("2. System Architecture"));
@@ -100,13 +100,13 @@ children.push(...figure("architecture.png", 620, 349, "Figure 1. End-to-end MLOp
 // 3. Data & EDA
 children.push(new Paragraph({ children: [new PageBreak()] }));
 children.push(H1("3. Data Acquisition & Exploratory Data Analysis"));
-children.push(P("Data is fetched by src/download_data.py, which targets the canonical UCI repository with a stable mirror fallback and writes data/heart_disease_raw.csv. Cleaning is deterministic and applied before any train/test split:"));
-children.push(bullet("Invalid encoding artifacts (ca == 4, thal == 0) are coerced to missing for later imputation."));
-children.push(bullet("Exact duplicate rows are dropped (one found)."));
+children.push(P("Data is obtained via src/download_data.py, which reads the authentic UCI processed.cleveland.data (falling back to a live download if absent) and writes data/heart_disease_raw.csv. Cleaning is deterministic and applied before any train/test split:"));
+children.push(bullet("Genuine missing values (marked '?' in the source, 6 in total across ca and thal) are converted to NaN for later imputation."));
+children.push(bullet("A defensive check coerces any out-of-range encoding artifacts to missing (none present in the authentic Cleveland file)."));
 children.push(bullet("Statistical imputation and scaling are deferred to the fitted pipeline so they are learned only from training folds — avoiding data leakage."));
 children.push(H2("Class balance"));
-children.push(...figure("class_balance.png", 340, 260, "Figure 2. Target class distribution — mildly imbalanced (~54% positive)."));
-children.push(P("Because the imbalance is mild, accuracy is not badly misleading, but precision, recall and ROC-AUC are still reported. In a clinical screening context, recall (catching true cases) is prioritised."));
+children.push(...figure("class_balance.png", 340, 260, "Figure 2. Target class distribution — close to balanced (~54% no-disease, 46% disease)."));
+children.push(P("Because the classes are near-balanced, accuracy is reasonably reliable, but precision, recall and ROC-AUC are still reported. In a clinical screening context, recall (catching true cases) is prioritised."));
 children.push(H2("Feature distributions and correlations"));
 children.push(...figure("numeric_distributions.png", 560, 300, "Figure 3. Numeric feature distributions split by target."));
 children.push(...figure("correlation_heatmap.png", 520, 400, "Figure 4. Feature correlation matrix. Strongest target associations: ca, exang, oldpeak, cp, thalach."));
@@ -123,13 +123,13 @@ children.push(H2("Results"));
 children.push(table(
   ["Model", "Accuracy", "Precision", "Recall", "F1", "ROC-AUC"],
   [
-    ["Logistic Regression (selected)", "0.820", "0.824", "0.848", "0.836", "0.894"],
-    ["Random Forest", "0.770", "0.744", "0.879", "0.806", "0.893"],
+    ["Logistic Regression (selected)", "0.885", "0.839", "0.929", "0.881", "0.968"],
+    ["Random Forest", "0.885", "0.839", "0.929", "0.881", "0.950"],
   ],
   [3000, 1300, 1300, 1200, 1000, 1200],
 ));
 children.push(new Paragraph({ spacing: { after: 120 } }));
-children.push(P("Logistic Regression was selected on ROC-AUC and accuracy; its tuning independently chose class_weight='balanced', directly addressing the imbalance. Random Forest achieved higher recall (0.879), a defensible alternative when minimising missed cases matters most."));
+children.push(P("Both models reach identical test-set classification metrics; Logistic Regression is selected on the higher ROC-AUC (0.968 vs 0.950) and its simpler, interpretable form. Recall of 0.93 is strong — important for a screening use case where missing a true case is costly."));
 children.push(...figure("roc_logistic_regression.png", 330, 300, "Figure 5. ROC curve for the selected Logistic Regression model."));
 children.push(...figure("cm_logistic_regression.png", 300, 275, "Figure 6. Confusion matrix (test set) for the selected model."));
 
@@ -210,7 +210,7 @@ children.push(table(
 // 13. Conclusion
 children.push(new Paragraph({ children: [new PageBreak()] }));
 children.push(H1("13. Conclusion"));
-children.push(P("The delivered system demonstrates a complete MLOps lifecycle: from a reproducible data pipeline and tracked experimentation, through automated testing and containerised serving, to Kubernetes deployment and live monitoring. The selected Logistic Regression model achieves 0.89 ROC-AUC with balanced precision and recall, and the surrounding engineering ensures the model can be retrained, validated, deployed, and observed reliably."));
+children.push(P("The delivered system demonstrates a complete MLOps lifecycle: from a reproducible data pipeline and tracked experimentation, through automated testing and containerised serving, to Kubernetes deployment and live monitoring. The selected Logistic Regression model achieves 0.97 ROC-AUC with strong precision and recall, and the surrounding engineering ensures the model can be retrained, validated, deployed, and observed reliably."));
 children.push(H2("Repository"));
 children.push(P("https://github.com/<your-username>/heart-disease-mlops", { color: BLUE }));
 
