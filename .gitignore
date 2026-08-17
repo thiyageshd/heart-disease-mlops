@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# MLflow
+mlruns/
+mlartifacts/
+
+# Models (large binaries - keep only the final tracked artifact if needed)
+models/*.pkl
+models/*.joblib
+models/*.onnx
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+
+# Data (keep the download script; regenerate raw locally)
+# Comment the next line out if your grader wants the CSV committed.
+# data/heart_disease_raw.csv
