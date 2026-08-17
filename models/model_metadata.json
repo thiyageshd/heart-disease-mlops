@@ -1,0 +1,36 @@
+{
+  "winner": "logistic_regression",
+  "metrics": {
+    "accuracy": 0.8197,
+    "precision": 0.8235,
+    "recall": 0.8485,
+    "f1": 0.8358,
+    "roc_auc": 0.8939
+  },
+  "best_params": {
+    "C": 0.5,
+    "class_weight": "balanced"
+  },
+  "feature_order": [
+    "age",
+    "trestbps",
+    "chol",
+    "thalach",
+    "oldpeak",
+    "cp",
+    "restecg",
+    "slope",
+    "thal",
+    "ca",
+    "sex",
+    "fbs",
+    "exang"
+  ],
+  "clean_notes": [
+    "Dropped 1 duplicate row(s).",
+    "Coerced ca==4 -> NaN: 5",
+    "Coerced thal==0 -> NaN: 2"
+  ],
+  "n_train": 241,
+  "n_test": 61
+}

@@ -1,0 +1,8 @@
+              precision    recall  f1-score   support
+
+  No disease       0.82      0.64      0.72        28
+     Disease       0.74      0.88      0.81        33
+
+    accuracy                           0.77        61
+   macro avg       0.78      0.76      0.76        61
+weighted avg       0.78      0.77      0.77        61
