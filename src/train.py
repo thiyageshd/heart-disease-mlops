@@ -28,16 +28,23 @@ from pathlib import Path
 
 import joblib
 import matplotlib
+
 matplotlib.use("Agg")  # headless
 import matplotlib.pyplot as plt
 import mlflow
 import mlflow.sklearn
-import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
-    ConfusionMatrixDisplay, RocCurveDisplay, accuracy_score, confusion_matrix,
-    precision_score, recall_score, roc_auc_score, f1_score, classification_report,
+    ConfusionMatrixDisplay,
+    RocCurveDisplay,
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
 )
 from sklearn.model_selection import GridSearchCV, StratifiedKFold, train_test_split
 from sklearn.pipeline import Pipeline

@@ -5,6 +5,7 @@ __pycache__/
 .venv/
 venv/
 env/
+.mlops_env/
 
 # Notebooks
 .ipynb_checkpoints/
@@ -12,6 +13,7 @@ env/
 # MLflow
 mlruns/
 mlartifacts/
+mlflow.db
 
 # Models (large binaries - keep only the final tracked artifact if needed)
 models/*.pkl
