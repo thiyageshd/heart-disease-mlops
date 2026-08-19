@@ -2,12 +2,14 @@ const fs = require("fs");
 const path = require("path");
 const {
   Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType,
-  Table, TableRow, TableCell, WidthType, BorderStyle, ShadingType,
+  Table, TableRow, TableCell, WidthType, ShadingType,
   ImageRun, PageBreak, TableOfContents, PageNumber, Header, Footer,
 } = require("docx");
 
 const FIG = path.join(__dirname, "figures");
 const img = (f) => fs.readFileSync(path.join(FIG, f));
+const SHOT = path.join(__dirname, "..", "screenshot");
+const shot = (f) => fs.readFileSync(path.join(SHOT, f));
 
 const NAVY = "1a2a4f", BLUE = "2b6cb0", GREY = "555555";
 
@@ -30,6 +32,13 @@ const figure = (file, w, h, cap) => [
   new Paragraph({
     alignment: AlignmentType.CENTER, spacing: { before: 80, after: 40 },
     children: [new ImageRun({ type: "png", data: img(file), transformation: { width: w, height: h } })],
+  }),
+  caption(cap),
+];
+const sfigure = (file, w, h, cap) => [
+  new Paragraph({
+    alignment: AlignmentType.CENTER, spacing: { before: 80, after: 40 },
+    children: [new ImageRun({ type: "png", data: shot(file), transformation: { width: w, height: h } })],
   }),
   caption(cap),
 ];
@@ -57,12 +66,6 @@ function table(headers, rows, widths) {
   return new Table({ columnWidths: widths, width: { size: total, type: WidthType.DXA }, rows: [headRow, ...bodyRows] });
 }
 
-const placeholder = (label) => new Paragraph({
-  alignment: AlignmentType.CENTER, spacing: { before: 80, after: 160 },
-  border: { top: { style: BorderStyle.DASHED, size: 6, color: BLUE }, bottom: { style: BorderStyle.DASHED, size: 6, color: BLUE }, left: { style: BorderStyle.DASHED, size: 6, color: BLUE }, right: { style: BorderStyle.DASHED, size: 6, color: BLUE } },
-  children: [new TextRun({ text: `[ SCREENSHOT: ${label} ]`, italics: true, color: BLUE, size: 20 })],
-});
-
 // ---- document ---------------------------------------------------------
 const children = [];
 
@@ -74,7 +77,8 @@ children.push(
   new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 80 }, children: [new TextRun({ text: "MLOps Assignment 01 — AIMLCZG523", size: 24 })] }),
   new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 600 }, children: [new TextRun({ text: "Machine Learning Operations", size: 22, color: GREY })] }),
   new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "Thiyagesh Dhandapani", size: 24, bold: true })] }),
-  new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "GitHub: https://github.com/<your-username>/heart-disease-mlops", size: 18, color: GREY })] }),
+  new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "GitHub: https://github.com/thiyageshd/heart-disease-mlops", size: 18, color: GREY })] }),
+  new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "Recording: https://github.com/thiyageshd/heart-disease-mlops/releases/download/demo-v1/Assignment_1_Complete_Recording.mp4", size: 18, color: GREY })] }),
   new Paragraph({ children: [new PageBreak()] }),
 );
 
@@ -138,8 +142,9 @@ children.push(new Paragraph({ children: [new PageBreak()] }));
 children.push(H1("5. Experiment Tracking (MLflow)"));
 children.push(P("Every training run is logged to MLflow (SQLite backend) with hyper-parameters, cross-validated and test metrics, the ROC curve, the confusion matrix, a classification report, and the serialised model. Runs are compared in the MLflow UI:"));
 children.push(P("mlflow ui --backend-store-uri sqlite:///mlflow.db", { font: "Consolas", size: 20 }));
-children.push(placeholder("MLflow run comparison view (both runs, metrics columns)"));
-children.push(placeholder("MLflow single-run page showing logged params, metrics, and artifacts"));
+children.push(...sfigure("MLFlow_Experiment_list_page.png", 600, 210, "Figure 7. MLflow experiment run list — both candidate models compared side by side."));
+children.push(...sfigure("MLFlow_Winning_Flow_Logistic_Regression_Metrics.png", 600, 314, "Figure 8. MLflow run detail for the winning Logistic Regression run — logged parameters, metrics, and artifacts."));
+children.push(...sfigure("MLFlow_Winning_Flow_Logistic_Regression_Metrics_roc.png", 600, 314, "Figure 9. ROC curve artifact logged against the winning MLflow run."));
 
 // 6. Packaging & reproducibility
 children.push(H1("6. Model Packaging & Reproducibility"));
@@ -153,8 +158,10 @@ children.push(bullet("POST /predict — single-patient prediction returning labe
 children.push(bullet("POST /predict/batch — multiple patients in one request."));
 children.push(bullet("GET /metrics — Prometheus metrics."));
 children.push(P("Input is validated with Pydantic (clinically sensible ranges), so malformed requests receive a clear 422 error. Interactive OpenAPI docs are available at /docs."));
-children.push(placeholder("Swagger /docs page showing the endpoints"));
-children.push(placeholder("Successful POST /predict response (JSON with prediction + confidence)"));
+children.push(...sfigure("Swagger_API_docs.png", 600, 319, "Figure 10. Interactive Swagger UI at /docs, listing all API endpoints."));
+children.push(...sfigure("Post_api_predict.png", 458, 480, "Figure 11. A successful POST /predict call via Swagger, returning prediction, label, probability, and confidence."));
+children.push(...sfigure("Get_api_health.png", 600, 427, "Figure 12. GET /health response — liveness status plus the loaded model's metadata and metrics."));
+children.push(...sfigure("Post_api_predict_curl.png", 600, 102, "Figure 13. POST /predict from the command line via curl, for comparison against the Swagger UI call above."));
 
 // 8. Containerisation
 children.push(new Paragraph({ children: [new PageBreak()] }));
@@ -162,31 +169,35 @@ children.push(H1("8. Containerisation (Docker)"));
 children.push(P("The service is packaged in a slim python:3.11 image that installs serving-only dependencies, runs as a non-root user, and defines a container HEALTHCHECK against /health. Build and run:"));
 children.push(P("docker build -t heart-disease-api .", { font: "Consolas", size: 20 }));
 children.push(P("docker run -p 8000:8000 heart-disease-api", { font: "Consolas", size: 20 }));
-children.push(placeholder("docker build output (successful image build)"));
-children.push(placeholder("docker run + curl /predict returning a prediction"));
+children.push(...sfigure("Docker_run_output.png", 600, 190, "Figure 14. Container starting from the built image — non-root user, HEALTHCHECK configured."));
+children.push(...sfigure("Docker_run_healthcheck.png", 600, 190, "Figure 15. Container HEALTHCHECK passing against /health."));
+children.push(...sfigure("Docker_run_predict.png", 600, 190, "Figure 16. POST /predict against the running container, confirming the image serves correctly in isolation."));
 
 // 9. CI/CD
 children.push(H1("9. CI/CD Pipeline (GitHub Actions)"));
 children.push(P("On every push and pull request to main, the workflow runs: dependency install, ruff lint, dataset fetch, pytest (15 unit tests across preprocessing, the model artifact, and the API), a model-training smoke run, and artifact upload. The pipeline fails loudly on any lint or test error, satisfying the production-readiness requirement."));
-children.push(placeholder("GitHub Actions run: all steps green (lint, test, train)"));
-children.push(placeholder("pytest output showing 15 passed"));
+children.push(...sfigure("Github_actions_1.png", 600, 316, "Figure 17. GitHub Actions run summary on push to main — completed successfully."));
+children.push(...sfigure("Github_actions_2.png", 600, 316, "Figure 18. Expanded job steps — lint, dataset fetch, 15 unit tests, and model-training smoke run all green."));
+children.push(...sfigure("Github_actions_artifacts.png", 600, 316, "Figure 19. Trained-model and training-figures artifacts uploaded from the CI run."));
 
 // 10. Deployment
 children.push(H1("10. Production Deployment (Kubernetes)"));
-children.push(P("The container is deployed to a local Kubernetes cluster (Minikube) using manifests in k8s/: a Deployment (2 replicas, readiness/liveness probes on /health, resource requests/limits) and a LoadBalancer Service. Deploy with:"));
-children.push(P("minikube image load heart-disease-api:latest", { font: "Consolas", size: 20 }));
-children.push(P("kubectl apply -f k8s/", { font: "Consolas", size: 20 }));
-children.push(P("minikube service heart-disease-api", { font: "Consolas", size: 20 }));
-children.push(placeholder("kubectl get pods/svc showing running pods and the service"));
-children.push(placeholder("Prediction against the deployed cluster endpoint"));
+children.push(P("The container is deployed to a local Kubernetes cluster using manifests in k8s/: a Deployment (2 replicas, readiness/liveness probes on /health, resource requests/limits) and a LoadBalancer Service. Deployment target was Docker Desktop's built-in Kubernetes (enabled via Settings → Kubernetes), which shares the same local image store as `docker build` — no separate image-load step is needed, unlike Minikube. Deploy with:"));
+children.push(P("kubectl apply -f k8s/deployment.yaml -f k8s/service.yaml", { font: "Consolas", size: 20 }));
+children.push(P("Docker Desktop auto-binds LoadBalancer services to localhost, so the API is immediately reachable at http://localhost:80 with no tunnel command required.", { italics: true, color: GREY }));
+children.push(...sfigure("Docker_Desktop_Kubernetes_dashboard_view.png", 600, 343, "Figure 20. Docker Desktop's Kubernetes dashboard showing the running cluster."));
+children.push(...sfigure("Kubectl_pods_running_in_local.png", 600, 183, "Figure 21. kubectl get pods,svc — 2/2 replicas Running, LoadBalancer service with an external IP on port 80."));
+children.push(...sfigure("Kubectl_predict_via_loadbalancer.png", 600, 70, "Figure 26. POST /predict against the Kubernetes LoadBalancer endpoint (http://localhost/predict), confirming the deployed cluster serves correctly."));
 
 // 11. Monitoring
 children.push(new Paragraph({ children: [new PageBreak()] }));
 children.push(H1("11. Monitoring & Logging"));
 children.push(P("The API emits structured request logs and Prometheus metrics (request counts, latency histograms, response sizes per endpoint) at /metrics. A docker-compose stack brings up the API, Prometheus (scraping /metrics), and Grafana (auto-provisioned Prometheus datasource) together:"));
 children.push(P("docker compose up --build", { font: "Consolas", size: 20 }));
-children.push(placeholder("Prometheus targets page showing the API target UP"));
-children.push(placeholder("Grafana dashboard with request-rate / latency panels"));
+children.push(...sfigure("Raw_Prometheus_Metrics.png", 600, 351, "Figure 22. Raw Prometheus-format metrics exposed at /metrics — per-endpoint request counts and latency histograms."));
+children.push(...sfigure("Prometheus_target_page.png", 600, 331, "Figure 23. Prometheus's Targets page — the heart-disease-api scrape target is UP."));
+children.push(...sfigure("Prometheus_Data_source.png", 600, 331, "Figure 24. Grafana's Data Sources page confirming the Prometheus datasource is connected."));
+children.push(...sfigure("Prometheus_query_result.png", 600, 331, "Figure 25. Grafana Explore querying live request-rate metrics from the Prometheus datasource."));
 
 // 12. How to run
 children.push(H1("12. How to Run (Quick Reference)"));
@@ -202,7 +213,7 @@ children.push(table(
     ["Test", "pytest tests/"],
     ["Docker", "docker build -t heart-disease-api . && docker run -p 8000:8000 heart-disease-api"],
     ["Monitor", "docker compose up --build"],
-    ["Deploy", "kubectl apply -f k8s/"],
+    ["Deploy", "kubectl apply -f k8s/deployment.yaml -f k8s/service.yaml"],
   ],
   [1800, 7200],
 ));
@@ -212,7 +223,9 @@ children.push(new Paragraph({ children: [new PageBreak()] }));
 children.push(H1("13. Conclusion"));
 children.push(P("The delivered system demonstrates a complete MLOps lifecycle: from a reproducible data pipeline and tracked experimentation, through automated testing and containerised serving, to Kubernetes deployment and live monitoring. The selected Logistic Regression model achieves 0.97 ROC-AUC with strong precision and recall, and the surrounding engineering ensures the model can be retrained, validated, deployed, and observed reliably."));
 children.push(H2("Repository"));
-children.push(P("https://github.com/<your-username>/heart-disease-mlops", { color: BLUE }));
+children.push(P("https://github.com/thiyageshd/heart-disease-mlops", { color: BLUE }));
+children.push(H2("Pipeline Walkthrough Recording"));
+children.push(P("https://github.com/thiyageshd/heart-disease-mlops/releases/download/demo-v1/Assignment_1_Complete_Recording.mp4", { color: BLUE }));
 
 // ---- assemble ---------------------------------------------------------
 const doc = new Document({

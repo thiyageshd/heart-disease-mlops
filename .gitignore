@@ -7,6 +7,9 @@ venv/
 env/
 .mlops_env/
 
+# Node (report generator deps)
+node_modules/
+
 # Notebooks
 .ipynb_checkpoints/
 
@@ -24,7 +27,10 @@ models/*.onnx
 .DS_Store
 .idea/
 .vscode/
+docs/
 
+# Recording (too large for git; published as a GitHub Release asset instead)
+*.mp4
 # Data (keep the download script; regenerate raw locally)
 # Comment the next line out if your grader wants the CSV committed.
 # data/heart_disease_raw.csv

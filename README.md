@@ -7,6 +7,8 @@ it as a cloud-ready, monitored API.
 **Dataset:** Heart Disease UCI (Cleveland processed subset) — 303 records, 13
 clinical features + binary target (presence/absence of heart disease).
 
+**Pipeline walkthrough recording:** [Assignment_1_Complete_Recording.mp4](https://github.com/thiyageshd/heart-disease-mlops/releases/download/demo-v1/Assignment_1_Complete_Recording.mp4)
+
 ---
 
 ## Repository structure
@@ -63,7 +65,7 @@ correlations. Figures are saved to `report/figures/`.
 | 4 | Pytest + GitHub Actions CI/CD | ✅ done |
 | 5 | Kubernetes deployment (Minikube) | ✅ done |
 | 6 | Monitoring & logging (Prometheus + Grafana) | ✅ done |
-| 7 | 10-page report + pipeline video | 📝 report drafted |
+| 7 | 10-page report + pipeline video | ✅ done |
 
 ## Key EDA findings (Phase 1)
 

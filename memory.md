@@ -179,12 +179,22 @@ thalach, exang, oldpeak, slope, ca, thal` (see `sample_request.json`).
 
 **Done (code):** all 9 assignment tasks are implemented and tested.
 
+**GitHub:** pushed to `https://github.com/thiyageshd/heart-disease-mlops` (private repo,
+`thiyageshd` account, `main` branch). First CI run on push: **green**
+(`gh run list` → `[ok] CI`).
+
+**Official assignment brief** is saved at `docs/MLOps Assignment 01 2026.pdf`
+(gitignored — not committed, course material). Marks map to the 9 tasks already
+built: EDA 5, Feature/Model 8, Experiment Tracking 5, Packaging 7, CI/CD 8,
+Containerization 5, Deployment 7, Monitoring 3, Docs 2 = 50 total. Deliverables also
+require: cleaned dataset + download script (have), notebooks (have), `test/` folder
+(have), Actions YAML (have), deployment manifests (have), screenshot folder (have, real screenshots captured), 10-page report
+(have, screenshots + personalising done), deployed API URL or local access
+instructions, and a short pipeline walkthrough video (have —
+`Assignment_1_Complete_Recording.mp4`, published as a GitHub Release asset:
+https://github.com/thiyageshd/heart-disease-mlops/releases/download/demo-v1/Assignment_1_Complete_Recording.mp4).
+
 **Remaining (human-only, cannot be automated):**
-- Run everything locally and capture **screenshots** for the report placeholders
-  (`[ SCREENSHOT: … ]` markers): MLflow UI, Swagger /docs, /predict response,
-  docker build+run, GitHub Actions green run, `kubectl get pods,svc`, Grafana dashboard.
-- Push to GitHub: `git remote add origin <url> && git push -u origin main`.
-- Record a short (3–5 min) pipeline walkthrough video.
 - Personalise EDA/report commentary in own words (academic-integrity requirement).
 
 **Academic integrity note:** the assignment penalises identical/templated submissions.
